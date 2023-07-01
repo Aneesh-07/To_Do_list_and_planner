@@ -7,26 +7,26 @@ class Database():
 
 # Createing the task table
     def create_task_table(self):
-        self.cursor.execute("CREATE TABLE IF NOT EXISTS tasks(id integer PRIMARY KEY AUTOINCREMENT, task varchar(50) NOT NULL,due_date varchar(50), completed BOOLEAN NOT NULL CHECK(completed IN (0,1)))")
+        self.cursor.execute("CREATE TABLE IF NOT EXISTS tasks(id integer PRIMARY KEY AUTOINCREMENT, task varchar(50) NOT NULL,due_date varchar(50),due_time varchar(50), completed BOOLEAN NOT NULL CHECK(completed IN (0,1)))")
         self.con.commit()
 
 # Creating the task
-    def create_task(self, task,due_date = None):
-        self.cursor.execute("INSERT INTO tasks(task, due_date, completed) VALUES(?,?,?)",(task, due_date, 0))
+    def create_task(self, task,due_date = None,due_time = None):
+        self.cursor.execute("INSERT INTO tasks(task, due_date,due_time, completed) VALUES(?,?,?,?)",(task, due_date,due_time, 0))
         self.con.commit()
 
         #getting the last entered item so we can add it to the task list
 
-        created_task = self.cursor.execute("SELECT id, task, due_date FROM tasks WHERE task = ? and completed = 0", (task,)).fetchall()
+        created_task = self.cursor.execute("SELECT id, task, due_date,due_time FROM tasks WHERE task = ? and completed = 0 ORDER BY due_date,due_time", (task,)).fetchall()
         return created_task[-1]
     
     #getting the tasks
 
     def get_task(self):
         '''getting all tasks : completed and incompleted'''
-        incompleted_tasks = self.cursor.execute("SELECT id, task, due_date FROM tasks WHERE completed = 0").fetchall()
+        incompleted_tasks = self.cursor.execute("SELECT id, task, due_date, due_time FROM tasks WHERE completed = 0 ORDER BY due_date,due_time").fetchall()
         
-        completed_tasks = self.cursor.execute("SELECT id, task, due_date FROM tasks WHERE completed = 1").fetchall()
+        completed_tasks = self.cursor.execute("SELECT id, task, due_date, due_time FROM tasks WHERE completed = 1 ORDER BY due_date,due_time").fetchall()
 
         return completed_tasks , incompleted_tasks
 
