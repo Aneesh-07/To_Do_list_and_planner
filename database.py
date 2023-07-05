@@ -4,6 +4,7 @@ class Database():
     def __init__(self):
         self.con = sqlite3.connect("task-database.db")
         self.cursor = self.con.cursor()
+        self.create_task_table()
 
 # Createing the task table
     def create_task_table(self):

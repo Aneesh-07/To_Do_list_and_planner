@@ -8,12 +8,17 @@ from datetime import datetime
 
 from kivymd.uix.list import ThreeLineAvatarIconListItem,ILeftBody
 from kivymd.uix.selectioncontrol import MDCheckbox
+from kivy.utils import platform
 
 
 from database import Database
+if platform == "android":
+    from android.permissions import request_permissions, Permission
+    request_permissions([Permission.READ_EXTERNAL_STORAGE, Permission.WRITE_EXTERNAL_STORAGE])
 # Instantiating the Database class by creating db object
 db = Database()
-db.create_task_table()
+
+
 
 class DialogContent(MDBoxLayout):
     def __init__(self,**kwargs):
