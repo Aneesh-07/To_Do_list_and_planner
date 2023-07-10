@@ -6,28 +6,34 @@ from kivymd.uix.pickers import MDTimePicker
 from datetime import datetime
 
 
-from kivymd.uix.list import TwoLineAvatarIconListItem,ILeftBody
+from kivymd.uix.list import ThreeLineAvatarIconListItem,ILeftBody
 from kivymd.uix.selectioncontrol import MDCheckbox
+from kivy.utils import platform
 
 
 from database import Database
+if platform == "android":
+    from android.permissions import request_permissions, Permission
+    request_permissions([Permission.READ_EXTERNAL_STORAGE, Permission.WRITE_EXTERNAL_STORAGE])
 # Instantiating the Database class by creating db object
 db = Database()
-db.create_task_table()
+
+
 
 class DialogContent(MDBoxLayout):
     def __init__(self,**kwargs):
         super().__init__(**kwargs)
         self.ids.date_text.text = datetime.now().strftime("%A %d %B %Y") 
         self.ids.time_label.text = datetime.now().strftime("%H:%M:%S")
-        # This func will show the date picker
-        
+       
+   # This func will show the date picker      
     def show_date_picker(self):
         date_dialog = MDDatePicker()
         date_dialog.bind(on_save= self.on_save)
         date_dialog.open()
      
      
+   # This func will show the time picker      
     def show_time_picker(self):
         time_dialog = MDTimePicker()
         time_dialog.bind(time = self.on_sav)
@@ -46,14 +52,14 @@ class DialogContent(MDBoxLayout):
   
   
 # Class for marking and deleting the element
-class ListItemWithCheckbox(TwoLineAvatarIconListItem):
+class ListItemWithCheckbox(ThreeLineAvatarIconListItem):
     def __init__(self, pk = None, **kwargs):
         super().__init__(**kwargs)
         self.pk = pk
   # Marking the item as complete or incomplete
     def mark(self, check, the_list_item):
         if check.active == True:
-            the_list_item.text = '[s]'+ the_list_item.text + '[/s]'
+            the_list_item.text = '[s]'+ str(the_list_item.text) + '[/s]'
             db.mark_task_as_completed(the_list_item.pk)
         else:
             the_list_item.text = "[b]"+str(db.mark_task_as_incompleted(the_list_item.pk)) + "[/b]"
@@ -92,8 +98,8 @@ class MainApp(MDApp):
     # adding tasks
     def add_task(self,task,task_date,task_time):
         print(task_time)
-        created_task = db.create_task(task.text , task_date)
-        self.root.ids['container'].add_widget(ListItemWithCheckbox(pk = created_task[0], text = '[b]'+ created_task[1] + '[/b]', secondary_text = created_task[2]))
+        created_task = db.create_task(task.text , task_date,task_time)
+        self.root.ids['container'].add_widget(ListItemWithCheckbox(pk = created_task[0], text = '[b]'+ created_task[1] + '[/b]', secondary_text = created_task[2], tertiary_text = created_task[3]))
         task.text = ""
                                                                    
         # self.root.ids['container'].add_widget(ListItemWithCheckbox(text = '[b]'+ task.text + '[/b]', secondary_text = task_date))
@@ -109,13 +115,13 @@ class MainApp(MDApp):
 
         if incompleted_task != []:
             for task in incompleted_task:
-                add_task = ListItemWithCheckbox(pk = task[0], text = task[1], secondary_text = task[2])
+                add_task = ListItemWithCheckbox(pk = task[0], text = "[b]" +task[1] + "[/b]", secondary_text = task[2],tertiary_text= task[3] )
                 self.root.ids.container.add_widget(add_task)
         
         if completed_task != []:
 
             for task in completed_task:
-                add_task = ListItemWithCheckbox(pk = task[0], text = '[s]'+task[1]+'[/s]' , secondary_text = task[2])
+                add_task = ListItemWithCheckbox(pk = task[0], text = '[s]'+task[1]+'[/s]' , secondary_text = task[2],tertiary_text= task[3])
 
                 add_task.ids.check.active = True
                 self.root.ids.container.add_widget(add_task)
