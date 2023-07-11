@@ -31,7 +31,7 @@ To run the To-Do List App , you'll need to have Python and Kivy installed on you
 3. Install the dependencies:
 
 ```bash 
- pip install requirement.txt
+ pip install -r requirement.txt
 ```
 
 
